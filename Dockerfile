@@ -1,5 +1,5 @@
 # Specify base image
-FROM alpine
+FROM node:14-alpine
 
 # Install dependencies
 RUN npm install
