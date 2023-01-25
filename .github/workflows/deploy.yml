@@ -1,0 +1,20 @@
+# CICD IMPLEMENTATION USING GITHUB ACTIONS & DIGITAL OCEAN
+
+name: Deploy Frontend
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 07-cicd-gh-actions-do]
+
+jobs:
+  # build docker image, use image to run test
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Docker build
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/react-test -f ./frontend/Dockerfile.dev ./frontend
