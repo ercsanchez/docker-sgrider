@@ -4,3 +4,10 @@ services:
     image: 'postgres:15-alpine'
   redis:
     image: 'redis:7-alpine'
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - ./server:/app
