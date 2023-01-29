@@ -2,6 +2,9 @@ version: '3'
 services:
   postgres:
     image: 'postgres:15-alpine'
+    environment:
+      - POSTGRES_PASSWORD=postgres_password
+    # required env variable by postgres image
   redis:
     image: 'redis:7-alpine'
   server:
