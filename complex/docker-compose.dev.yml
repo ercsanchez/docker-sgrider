@@ -7,7 +7,7 @@ services:
     # required env variable by postgres image
   redis:
     image: 'redis:7-alpine'
-  server:
+  api:
     build:
       context: ./server
       dockerfile: Dockerfile.dev
