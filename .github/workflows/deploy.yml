@@ -9,43 +9,59 @@ on:
 
 jobs:
   # build docker image, use image to run test
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Docker build for tests
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/react-test -f ./complex/client/Dockerfile.dev ./complex/client
+      # docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      # no need to login to docker hub here
+      # add build scripts here for other images, if they have tests
+      - name: Run tests using built image
+        run: |
+          docker run -e CI=true ${{ secrets.DOCKER_USERNAME }}/react-test npm run test
+
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Docker build
+      - name: Docker build for production
         run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/react-test -f ./frontend/Dockerfile.dev ./frontend
-      - name: Run tests using built image
-        run: |
-          docker run -e CI=true ${{ secrets.DOCKER_USERNAME }}/react-test npm run test
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/multi-client ./complex/client
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/multi-nginx ./complex/nginx
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/multi-server ./complex/server
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/multi-worker ./complex/worker
+
+  # DEPLOYMENT
       # - name: Install doctl
       #   uses: digitalocean/action-doctl@v2
       #   with:
       #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      - name: transfer files
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.DO_DROPLET_IP_ADD }}
-          # host: ${{ secrets.DO_DROPLET_DOMAIN }}
-          username: ${{ secrets.DO_DROPLET_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          # password: ${{ secrets.PASSWORD }}
-          # port: ${{ secrets.PORT }}
-          source: "frontend/"
-          target: "~/"
-      - name: run docker compose
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DO_DROPLET_IP_ADD }}
-          # host: ${{ secrets.DO_DROPLET_DOMAIN }}
-          username: ${{ secrets.DO_DROPLET_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.PASSPHRASE }}
-          script: |
-            cd ~/frontend
-            docker compose down
-            docker compose -f docker-compose.yml up -d --build
+      # - name: transfer files
+      #   uses: appleboy/scp-action@master
+      #   with:
+      #     host: ${{ secrets.DO_DROPLET_IP_ADD }}
+      #     # host: ${{ secrets.DO_DROPLET_DOMAIN }}
+      #     username: ${{ secrets.DO_DROPLET_USERNAME }}
+      #     key: ${{ secrets.SSH_KEY }}
+      #     passphrase: ${{ secrets.PASSPHRASE }}
+      #     # password: ${{ secrets.PASSWORD }}
+      #     # port: ${{ secrets.PORT }}
+      #     source: "frontend/"
+      #     target: "~/"
+      # - name: run docker compose
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.DO_DROPLET_IP_ADD }}
+      #     # host: ${{ secrets.DO_DROPLET_DOMAIN }}
+      #     username: ${{ secrets.DO_DROPLET_USERNAME }}
+      #     key: ${{ secrets.SSH_KEY }}
+      #     passphrase: ${{ secrets.PASSPHRASE }}
+      #     script: |
+      #       cd ~/frontend
+      #       docker compose down
+      #       docker compose -f docker-compose.yml up -d --build
