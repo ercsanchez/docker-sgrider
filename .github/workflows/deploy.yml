@@ -5,7 +5,7 @@ name: Deploy Frontend
 on:
   workflow_dispatch:
   push:
-    branches: [main, 07-cicd-gh-actions-do]
+    branches: [main, 07-cicd-gh-actions-do, 10-ci-multi-images]
 
 jobs:
   # build docker image, use image to run test
