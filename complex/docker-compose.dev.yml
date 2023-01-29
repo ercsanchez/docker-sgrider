@@ -9,6 +9,9 @@ services:
     image: 'redis:7-alpine'
   nginx:
     restart: always
+    depends_on:
+      - api
+      - client
     build:
       context: ./nginx
       dockerfile: Dockerfile.dev
