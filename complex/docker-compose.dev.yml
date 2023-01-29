@@ -2,3 +2,5 @@ version: '3'
 services:
   postgres:
     image: 'postgres:15-alpine'
+  redis:
+    image: 'redis:7-alpine'
